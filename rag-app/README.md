@@ -89,7 +89,7 @@ rag-app/
 
 ## 📸 Screenshot
 
-![Demo](rag-app/assets/demo.png)
+![Demo](assets/demo.png)
 
 ---
 
