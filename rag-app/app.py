@@ -1,31 +1,45 @@
+import os
 import streamlit as st
-from utils.loader import load_document
-from utils.chunker import chunk_text
+from dotenv import load_dotenv
+from groq import Groq
 
-st.set_page_config(page_title="AI Document Assistant", layout="wide")
+load_dotenv(dotenv_path="/Users/vishalsubhanje/endee/rag-app/.env")
 
-st.title("AI Document Assistant using Endee")
-st.write("Upload a TXT or PDF file and ask questions from it.")
+from query import retrieve_relevant_context
 
-uploaded_file = st.file_uploader("Upload a document", type=["txt", "pdf"])
+client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
-if uploaded_file is not None:
-    st.success(f"File uploaded successfully: {uploaded_file.name}")
+st.set_page_config(page_title="Heart Risk Assist", page_icon="❤️")
+st.title("Heart Risk Assist")
+st.write("A RAG-based heart health awareness system using Endee")
 
-    document_text = load_document(uploaded_file)
+question = st.text_input("Ask a heart-health question:")
 
-    if document_text:
-        st.subheader("Extracted Text Preview")
-        st.text_area("Document Text", document_text[:2000], height=250)
+if question:
+    context = retrieve_relevant_context(question)
 
-        chunks = chunk_text(document_text)
+    prompt = f"""
+You are a heart health awareness assistant.
+Answer the user's question using only the context below.
 
-        st.subheader("Generated Chunks")
-        st.write(f"Total chunks created: {len(chunks)}")
+Context:
+{context}
 
-        for i, chunk in enumerate(chunks[:5]):
-            st.text_area(f"Chunk {i+1}", chunk, height=150)
-    else:
-        st.error("Could not read the uploaded file.")
-else:
-    st.info("Please upload a TXT or PDF file.")
+Question:
+{question}
+"""
+
+    response = client.chat.completions.create(
+        model="llama-3.1-8b-instant",
+        messages=[{"role": "user", "content": prompt}]
+    )
+
+    answer = response.choices[0].message.content
+
+    st.subheader("Answer")
+    st.write(answer)
+
+    st.subheader("Retrieved Context")
+    st.write(context)
+
+st.caption("For educational purposes only. Not medical advice.")

@@ -1,86 +1,100 @@
-# AI Powerlifting Analytics Assistant using Endee (RAG)
+# ❤️ Heart Risk Assist
 
-## Problem Statement
+### A RAG-based Heart Health Awareness System using Endee
 
-Powerlifting athletes, coaches, and analysts often struggle to explore large competition datasets efficiently. Manually filtering thousands of athlete records is time-consuming and difficult. This project provides a Retrieval-Augmented Generation (RAG)-style analytics assistant that enables natural-language querying over powerlifting performance data.
+---
 
-## Project Overview
+## 📌 Overview
 
-This project uses a real-world Kaggle powerlifting dataset to build an AI-powered semantic search assistant. The system converts athlete performance records into text, generates embeddings, and retrieves the most relevant records for a user query.
+Heart Risk Assist is an AI-powered heart health awareness assistant built using the Endee vector database. It allows users to ask questions about heart disease and receive relevant, context-based answers using Retrieval-Augmented Generation (RAG).
 
-## Practical Use Case
+---
 
-- Find athletes with similar performance profiles
-- Retrieve top relevant lifters for natural-language questions
-- Explore deadlift, squat, bench press, and total lift performance using semantic search
+## ❗ Problem Statement
 
-## System Architecture (RAG Pipeline)
+Heart diseases are one of the leading causes of death worldwide. Many people lack awareness of early symptoms, risk factors, and preventive measures. This project aims to provide accessible and reliable heart health information through an AI assistant.
 
-1. **Data Ingestion**
-   - Load Kaggle powerlifting dataset
+---
 
-2. **Data Processing**
-   - Clean and filter relevant columns
-   - Convert structured rows into natural-language text
+## 🚀 Features
 
-3. **Embedding Generation**
-   - Use Sentence Transformers (`all-MiniLM-L6-v2`)
+* Ask heart health related questions
+* Retrieves relevant medical context
+* Generates AI-based responses
+* Simple and interactive UI using Streamlit
 
-4. **Vector Search (Endee-aligned design)**
-   - Store embeddings
-   - Perform similarity search using cosine similarity
+---
 
-5. **Retrieval-Augmented Response**
-   - Retrieve top relevant records
-   - Generate final answer using RAG-style retrieval flow
+## 🛠️ Tech Stack
 
-## Technologies Used
+* Endee (Vector Database)
+* Python
+* Streamlit
+* Groq API (LLM)
 
-- Python
-- Pandas
-- Sentence Transformers
-- Scikit-learn (cosine similarity)
-- Jupyter Notebook
-- Streamlit
-- Endee (vector database concept and integration design)
+---
 
-## Why Endee
+## 🧠 Architecture
 
-Endee is a high-performance vector database designed for large-scale similarity search.
+User Question → Context Retrieval → Endee → LLM → Response
 
-This project follows Endee’s architecture by:
-- converting data into embeddings
-- performing vector similarity search
-- enabling semantic retrieval
+---
 
-Due to local environment constraints, cosine similarity is used to simulate vector search behavior consistent with Endee’s design.
+## 📂 Project Structure
 
-## Features
-
-- Semantic search over powerlifting data
-- RAG-style retrieval pipeline
-- Real-world dataset usage
-- Natural-language querying
-- Athlete performance exploration
-- Notebook-based implementation
-- Optional Streamlit app structure
-
-## Project Structure
-
-```text
+```
 rag-app/
-├── app.py
-├── requirements.txt
-├── README.md
-├── .gitignore
-├── .env
-├── data/
-│   └── openpowerlifting copy.csv
-├── notebooks/
-│   └── powerlifting_rag.ipynb
-└── utils/
-    ├── chunker.py
-    ├── embedder.py
-    ├── loader.py
-    ├── rag_pipeline.py
-    └── vector_store.py
+  ├── app.py
+  ├── query.py
+  ├── ingest.py
+  ├── data/
+  ├── assets/
+```
+
+---
+
+## ⚙️ How to Run
+
+1. Clone the repository
+2. Navigate to the project folder
+
+   ```
+   cd rag-app
+   ```
+3. Install dependencies
+
+   ```
+   pip install -r requirements.txt
+   ```
+4. Create `.env` file and add your API key
+
+   ```
+   GROQ_API_KEY=your_api_key_here
+   ```
+5. Run the application
+
+   ```
+   streamlit run app.py
+   ```
+
+---
+
+## 💬 Sample Questions
+
+* What are early signs of a heart attack?
+* What are major risk factors for heart disease?
+* How can lifestyle changes reduce heart risk?
+
+---
+
+## 📸 Screenshot
+
+![Demo](rag-app/assets/demo.png)
+
+---
+
+## ⚠️ Disclaimer
+
+This project is for educational and awareness purposes only. It does not provide medical diagnosis or treatment advice.
+
+---
