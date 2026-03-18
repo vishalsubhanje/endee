@@ -1,8 +1,48 @@
 import requests
 import msgpack
 from sentence_transformers import SentenceTransformer
+from endee.index import json_unzip
 
 model = SentenceTransformer("all-MiniLM-L6-v2")
+
+
+def extract_texts(obj):
+    texts = []
+
+    if isinstance(obj, dict):
+        # direct text field
+        if "text" in obj and isinstance(obj["text"], str):
+            texts.append(obj["text"])
+
+        # try unzip if this looks like zipped meta
+        try:
+            unzipped = json_unzip(obj)
+            if isinstance(unzipped, dict) and "text" in unzipped and isinstance(unzipped["text"], str):
+                texts.append(unzipped["text"])
+        except Exception:
+            pass
+
+        for value in obj.values():
+            texts.extend(extract_texts(value))
+
+    elif isinstance(obj, list):
+        for item in obj:
+            texts.extend(extract_texts(item))
+
+    elif isinstance(obj, tuple):
+        for item in obj:
+            texts.extend(extract_texts(item))
+
+    elif isinstance(obj, bytes):
+        try:
+            decoded = obj.decode("utf-8", errors="ignore")
+            if decoded.strip():
+                texts.append(decoded)
+        except Exception:
+            pass
+
+    return texts
+
 
 def retrieve_relevant_context(question):
     query_vector = model.encode(question).tolist()
@@ -20,26 +60,22 @@ def retrieve_relevant_context(question):
     }
 
     response = requests.post(url, json=payload)
-    results = msgpack.unpackb(response.content, raw=False)
 
-    contexts = []
+    unpacker = msgpack.Unpacker(raw=False)
+    unpacker.feed(response.content)
+    results = list(unpacker)
 
-    if isinstance(results, list):
-        for item in results:
-            try:
-                if isinstance(item, list) and len(item) >= 2:
-                    meta = item[1]
-                    if isinstance(meta, dict):
-                        text = meta.get("text")
-                        if text:
-                            contexts.append(text)
-                elif isinstance(item, dict):
-                    meta = item.get("meta", {})
-                    if isinstance(meta, dict):
-                        text = meta.get("text")
-                        if text:
-                            contexts.append(text)
-            except Exception:
-                pass
+    print("RAW ENDEE RESULTS:", results)
 
-    return "\n\n".join(contexts) if contexts else "No relevant context found."
+    contexts = extract_texts(results)
+
+    # remove duplicates while preserving order
+    unique_contexts = []
+    seen = set()
+    for text in contexts:
+        cleaned = text.strip()
+        if cleaned and cleaned not in seen:
+            seen.add(cleaned)
+            unique_contexts.append(cleaned)
+
+    return "\n\n".join(unique_contexts[:2]) if unique_contexts else "No relevant context found."
